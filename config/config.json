@@ -1,0 +1,16 @@
+{
+    "board_size": {
+        "width": 20,
+        "height": 15
+    },
+    "cell_size": 30,
+    "initial_snake_position": [5, 5],
+    "initial_obstacles": [
+        [10, 3],
+        [10, 4],
+        [11, 4],
+        [12, 4],
+        [15, 10],
+        [15, 11]
+    ]
+}
