@@ -12,6 +12,8 @@ class Board:
     def __init__(self, config_path):
         with open(config_path, 'r') as f:
             self.config = json.load(f)
+            
+        self._validate_config()
         
         self.width = self.config['board_size']['width']
         self.height = self.config['board_size']['height']
@@ -19,10 +21,31 @@ class Board:
         self.obstacles = list(map(tuple, self.config['initial_obstacles']))
         
         self.snake = Snake(self.config['initial_snake_position'])
-        self.food = self.spawn_food()
         
+        if set(self.snake.body) & set(self.obstacles):
+            raise ValueError("Config Error: Initial snake position collides with obstacles.")
+        
+        self.food = self.spawn_food()
         self.score = 0
-
+        
+    def _validate_config(self):
+        """Validates the loaded configuration."""
+        w = self.config['board_size']['width']
+        h = self.config['board_size']['height']
+        size = self.config['cell_size']
+        start_x, start_y = self.config['initial_snake_position']
+        
+        if w <= 0 or h <= 0 or size <= 0:
+            raise ValueError("Config Error: Board dimensions and cell size must be positive integers.") 
+        
+        if not (0 <= start_x < w and 0 <= start_y < h):
+            raise ValueError("Config Error: Initial snake position is outside the board boundaries.")
+        
+        for obs in self.config['initial_obstacles']:
+            ox, oy = obs
+            if not (0 <= ox < w and 0 <= oy < h):
+                raise ValueError(f"Config Error: Obstacle at position ({ox}, {oy}) is outside the board boundaries.")
+        
     def get_occupied_cells(self):
         """Returns all positions currently occupied by the snake or obstacles."""
         return set(self.snake.body) | set(self.obstacles)

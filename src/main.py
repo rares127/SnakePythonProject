@@ -1,6 +1,8 @@
 import pygame
 import os
 import sys
+import json
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__))) 
 
 from models import Board
@@ -9,10 +11,36 @@ from view import GameView
 FPS = 60 # Pygame refresh rate
 SNAKE_SPEED = 5 # Moves per second (Game tick rate)
 
+HIGHSCORE_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'config', 'highscore.json')
+
+def load_high_score():
+    """Load high score from file."""
+    if not os.path.exists(HIGHSCORE_FILE):
+        return 0
+    try:
+        with open(HIGHSCORE_FILE, 'r') as f:
+            data = json.load(f)
+            return data.get("high_score", 0)
+    except (json.JSONDecodeError, ValueError):
+        return 0
+    
+def save_high_score(score):
+    """Save high score to file."""
+    try:
+        with open(HIGHSCORE_FILE, 'w') as f:
+            json.dump({"high_score": score}, f)
+    except IOError:
+        print("Error saving high score.")
+
 def main():
     # Initialize Model
     config_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'config', 'config.json')
-    board = Board(config_path)
+    
+    try:
+        board = Board(config_path)
+    except ValueError as e:
+        print(f"Error loading configuration: {e}")
+        return
 
     # Initialize View
     view = GameView(board)
@@ -21,7 +49,7 @@ def main():
     # Game State Variables
     running = True
     game_over = False
-    high_score = 0
+    high_score = load_high_score()
     round_count = 1
     
     # Custom event for reliable game ticks
@@ -85,6 +113,7 @@ def main():
                             
         if game_over and board.score > high_score:  
             high_score = board.score
+            save_high_score(high_score)
         
         # --- View: Draw State ---
         view.draw_all(game_over, high_score, round_count)
