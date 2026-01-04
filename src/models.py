@@ -20,6 +20,8 @@ class Board:
         
         self.snake = Snake(self.config['initial_snake_position'])
         self.food = self.spawn_food()
+        
+        self.score = 0
 
     def get_occupied_cells(self):
         """Returns all positions currently occupied by the snake or obstacles."""

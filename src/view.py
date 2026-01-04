@@ -65,6 +65,10 @@ class GameView:
             pygame.draw.line(self.screen, (30, 30, 30), (x, 0), (x, self.screen_height))
         for y in range(0, self.screen_height, self.cell_size):
             pygame.draw.line(self.screen, (30, 30, 30), (0, y), (self.screen_width, y))
+            
+        # Display Score
+        score_text = self.font.render(f"Score: {self.board.score}", True, (255, 255, 255))
+        self.screen.blit(score_text, (10, 10))
 
         # Display Collision Message
         if game_over:

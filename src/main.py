@@ -74,6 +74,7 @@ def main():
                         if new_head == board.food:
                             board.snake.eat()
                             board.food = board.spawn_food()
+                            board.score += 1
         
         # --- View: Draw State ---
         view.draw_all(game_over)
