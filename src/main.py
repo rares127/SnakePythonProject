@@ -21,6 +21,8 @@ def main():
     # Game State Variables
     running = True
     game_over = False
+    high_score = 0
+    round_count = 1
     
     # Custom event for reliable game ticks
     MOVE_EVENT = pygame.USEREVENT + 1
@@ -44,12 +46,17 @@ def main():
                     elif event.key == pygame.K_RIGHT:
                         board.snake.set_direction((1, 0))
                 else:
-                    # Game Over controls - Restart
-                    if event.key == pygame.K_r:
-                        # Reset the game state by reloading the board
+                    # Game Over controls
+                    if event.key == pygame.K_c:
+                        # Continue to next round
+                        round_count += 1
                         board = Board(config_path)
                         view.board = board # Update the view to look at the new board
                         game_over = False
+                    
+                    elif event.key == pygame.K_q:
+                        # Quit game
+                        running = False
 
             if event.type == MOVE_EVENT and not game_over:
                 # --- Controller: Update Model ---
@@ -75,9 +82,12 @@ def main():
                             board.snake.eat()
                             board.food = board.spawn_food()
                             board.score += 1
+                            
+        if game_over and board.score > high_score:  
+            high_score = board.score
         
         # --- View: Draw State ---
-        view.draw_all(game_over)
+        view.draw_all(game_over, high_score, round_count)
         
         clock.tick(FPS)
 

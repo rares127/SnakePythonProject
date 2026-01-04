@@ -39,7 +39,7 @@ class GameView:
         )
         pygame.draw.rect(self.screen, color, rect)
         
-    def draw_all(self, game_over=False):
+    def draw_all(self, game_over=False, high_score=0, round_num=1):
         """Draws the entire game state."""
         self.screen.fill(COLOR_BACKGROUND)
 
@@ -70,15 +70,22 @@ class GameView:
         score_text = self.font.render(f"Score: {self.board.score}", True, (255, 255, 255))
         self.screen.blit(score_text, (10, 10))
 
-        # Display Collision Message
+        # Game Over Menu
         if game_over:
+            # Display Game Over Text
             text = self.font.render("GAME OVER", True, COLOR_COLLISION)
-            text_rect = text.get_rect(center=(self.screen_width // 2, self.screen_height // 2 - 20))
+            text_rect = text.get_rect(center=(self.screen_width // 2, self.screen_height // 2 - 60))
             self.screen.blit(text, text_rect)
             
-            restart_text = self.font.render("Press 'R' to Restart", True, (255, 255, 255))
-            restart_rect = restart_text.get_rect(center=(self.screen_width // 2, self.screen_height // 2 + 20))
-            self.screen.blit(restart_text, restart_rect)
+            # Session Statistics 
+            stats_text = self.font.render(f"Round: {round_num} | High Score: {high_score}", True, (255, 255, 255))
+            stats_rect = stats_text.get_rect(center=(self.screen_width // 2, self.screen_height // 2 - 20))
+            self.screen.blit(stats_text, stats_rect)
+            
+            # Menu Instructions
+            menu_text = self.font.render("Press 'C' to Continue or 'Q' to Quit", True, (200, 200, 200))
+            menu_rect = menu_text.get_rect(center=(self.screen_width // 2, self.screen_height // 2 + 30))
+            self.screen.blit(menu_text, menu_rect)
             
         pygame.display.flip()
 
