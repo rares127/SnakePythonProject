@@ -9,7 +9,6 @@ from models import Board
 from view import GameView
 
 FPS = 60 # Pygame refresh rate
-SNAKE_SPEED = 5 # Moves per second (Game tick rate)
 UNDO_FREEZE_DURATION = 3000 # 3 seconds to react
 
 HIGHSCORE_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'config', 'highscore.json')
@@ -52,11 +51,12 @@ def main():
     game_over = False
     high_score = load_high_score()
     round_count = 1
+    snake_speed = 5
     unpause_time = 0
     
     # Custom event for reliable game ticks
     MOVE_EVENT = pygame.USEREVENT + 1
-    pygame.time.set_timer(MOVE_EVENT, 1000 // SNAKE_SPEED) # Set a timer for the snake movement
+    pygame.time.set_timer(MOVE_EVENT, 1000 // snake_speed) # Set a timer for the snake movement
 
     while running:
         current_time = pygame.time.get_ticks()
@@ -78,6 +78,15 @@ def main():
                         board.snake.set_direction((-1, 0))
                     elif event.key == pygame.K_RIGHT:
                         board.snake.set_direction((1, 0))
+                    
+                    # Speed controls
+                    elif event.key == pygame.K_EQUALS or event.key == pygame.K_PLUS:
+                        snake_speed = min(snake_speed + 1, 20)
+                        pygame.time.set_timer(MOVE_EVENT, 1000 // snake_speed)
+                        
+                    elif event.key == pygame.K_MINUS:
+                        snake_speed = max(snake_speed - 1, 1)
+                        pygame.time.set_timer(MOVE_EVENT, 1000 // snake_speed)
                 
                 else:
                     # Game Over controls
@@ -88,6 +97,8 @@ def main():
                         view.board = board # Update the view to look at the new board
                         game_over = False
                         unpause_time = 0
+                        snake_speed = 5
+                        pygame.time.set_timer(MOVE_EVENT, 1000 // snake_speed)
                     
                     elif event.key == pygame.K_q:
                         # Quit game
@@ -98,6 +109,8 @@ def main():
                         if board.undo():
                             game_over = False
                             unpause_time = current_time + UNDO_FREEZE_DURATION
+                            snake_speed = 5
+                            pygame.time.set_timer(MOVE_EVENT, 1000 // snake_speed)
 
             if event.type == MOVE_EVENT and not game_over and not is_frozen:
                 # we save the state before updating
