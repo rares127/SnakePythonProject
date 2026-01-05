@@ -10,6 +10,7 @@ from view import GameView
 
 FPS = 60 # Pygame refresh rate
 SNAKE_SPEED = 5 # Moves per second (Game tick rate)
+UNDO_FREEZE_DURATION = 3000 # 3 seconds to react
 
 HIGHSCORE_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'config', 'highscore.json')
 
@@ -51,12 +52,16 @@ def main():
     game_over = False
     high_score = load_high_score()
     round_count = 1
+    unpause_time = 0
     
     # Custom event for reliable game ticks
     MOVE_EVENT = pygame.USEREVENT + 1
     pygame.time.set_timer(MOVE_EVENT, 1000 // SNAKE_SPEED) # Set a timer for the snake movement
 
     while running:
+        current_time = pygame.time.get_ticks()
+        is_frozen = current_time < unpause_time
+        
         # --- Controller: Handle Input ---
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -73,6 +78,7 @@ def main():
                         board.snake.set_direction((-1, 0))
                     elif event.key == pygame.K_RIGHT:
                         board.snake.set_direction((1, 0))
+                
                 else:
                     # Game Over controls
                     if event.key == pygame.K_c:
@@ -81,12 +87,22 @@ def main():
                         board = Board(config_path)
                         view.board = board # Update the view to look at the new board
                         game_over = False
+                        unpause_time = 0
                     
                     elif event.key == pygame.K_q:
                         # Quit game
                         running = False
+                        
+                    elif event.key == pygame.K_u:
+                        # Undo
+                        if board.undo():
+                            game_over = False
+                            unpause_time = current_time + UNDO_FREEZE_DURATION
 
-            if event.type == MOVE_EVENT and not game_over:
+            if event.type == MOVE_EVENT and not game_over and not is_frozen:
+                # we save the state before updating
+                board.save_state()
+                
                 # --- Controller: Update Model ---
                 
                 # Predict the next head position
@@ -115,8 +131,12 @@ def main():
             high_score = board.score
             save_high_score(high_score)
         
+        freeze_remaining = None
+        if is_frozen and not game_over:
+            freeze_remaining = (unpause_time - current_time) // 1000 + 1
+        
         # --- View: Draw State ---
-        view.draw_all(game_over, high_score, round_count)
+        view.draw_all(game_over, high_score, round_count, freeze_remaining)
         
         clock.tick(FPS)
 

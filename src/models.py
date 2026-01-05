@@ -1,5 +1,6 @@
 import json
 import random
+import copy
 
 class Board:
     """
@@ -27,6 +28,8 @@ class Board:
         
         self.food = self.spawn_food()
         self.score = 0
+        
+        self.history = [] # For undo functionality
         
     def _validate_config(self):
         """Validates the loaded configuration."""
@@ -78,6 +81,40 @@ class Board:
             return False
         
         return True
+    
+    def save_state(self):
+        """Saves the current state of the board."""
+        state = {
+            'snake_body': copy.deepcopy(self.snake.body),
+            'snake_direction': self.snake.direction,
+            'snake_next_direction': self.snake.next_direction,
+            'snake_grow': self.snake.grow,
+            'food': self.food,
+            'score': self.score,
+        }
+        self.history.append(state)
+        
+        # Limit history size since we only undo after colliding
+        if len(self.history) > 5:
+            self.history.pop(0)
+        
+    def undo(self):
+        """Reverts the game state to the previous snapshot"""
+        if not self.history:
+            return False 
+        
+        last_state = self.history.pop()
+        
+        # We restore all variables
+        self.snake.body = last_state['snake_body']
+        self.snake.direction = last_state['snake_direction']
+        self.snake.next_direction = last_state['snake_next_direction']
+        self.snake.grow = last_state['snake_grow']
+        self.food = last_state['food']
+        self.score = last_state['score']
+        
+        return True
+            
 
 class Snake:
     """

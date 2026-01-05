@@ -14,7 +14,7 @@ class GameView:
 
     This class is responsible for initialising the game window, rendering
     all game elements (snake, food, obstacles, grid) and displaying
-    text messages.
+    the Game Over Menu.
     """
     def __init__(self, board: Board):
         pygame.init()
@@ -39,7 +39,7 @@ class GameView:
         )
         pygame.draw.rect(self.screen, color, rect)
         
-    def draw_all(self, game_over=False, high_score=0, round_num=1):
+    def draw_all(self, game_over=False, high_score=0, round_num=1, freeze_remaining=None):
         """Draws the entire game state."""
         self.screen.fill(COLOR_BACKGROUND)
 
@@ -83,9 +83,27 @@ class GameView:
             self.screen.blit(stats_text, stats_rect)
             
             # Menu Instructions
-            menu_text = self.font.render("Press 'C' to Continue or 'Q' to Quit", True, (200, 200, 200))
-            menu_rect = menu_text.get_rect(center=(self.screen_width // 2, self.screen_height // 2 + 30))
-            self.screen.blit(menu_text, menu_rect)
+            options = [
+                "[C] - Continue (Next Round)",
+                "[U] - Undo",
+                "[Q] - Quit Game"
+            ]
+            
+            start_y = self.screen_height // 2 + 20
+            for i, line in enumerate(options):
+                menu_surf = self.font.render(line, True, (200, 200, 200))
+                menu_rect = menu_surf.get_rect(center=(self.screen_width // 2, start_y + i * 30))
+                self.screen.blit(menu_surf, menu_rect)
+            
+        # Freeze countdown
+        if freeze_remaining is not None:
+            font = pygame.font.Font(None, 100)
+            text = font.render(str(freeze_remaining), True, (255, 255, 0))
+            
+            text_shadow = font.render(str(freeze_remaining), True, (0, 0, 0))
+            center_x, center_y = self.screen_width // 2, self.screen_height // 2
+            self.screen.blit(text_shadow, (center_x - 2, center_y - 2 + 20))
+            self.screen.blit(text, (center_x, center_y + 20))
             
         pygame.display.flip()
 
