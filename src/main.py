@@ -138,7 +138,7 @@ def main():
                         if new_head == board.food:
                             board.snake.eat()
                             board.food = board.spawn_food()
-                            board.score += 1
+                            board.score += 10
                             
         if game_over and board.score > high_score:  
             high_score = board.score
