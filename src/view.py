@@ -7,7 +7,7 @@ COLOR_SNAKE = (0, 255, 0)
 COLOR_FOOD = (255, 0, 0)
 COLOR_OBSTACLE = (128, 128, 128)
 COLOR_WALL = (255, 255, 255)
-COLOR_COLLISION = (255, 0, 255) # Magenta
+COLOR_COLLISION = (255, 0, 255)
 
 class GameView:
     """

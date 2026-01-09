@@ -85,7 +85,7 @@ class Board:
     def save_state(self):
         """Saves the current state of the board."""
         state = {
-            'snake_body': copy.deepcopy(self.snake.body),
+            'snake_body': copy.deepcopy(self.snake.body), # We use deepcopy because self.snake.body is a list, otherwise we would be saving a reference
             'snake_direction': self.snake.direction,
             'snake_next_direction': self.snake.next_direction,
             'snake_grow': self.snake.grow,
@@ -141,7 +141,14 @@ class Snake:
             self.next_direction = new_dir
 
     def move(self):
-        """Updates the snake's position based on its direction."""
+        """
+        Updates the snake's position based on its current direction.
+
+        Returns:
+            A tuple containing:
+                - The new (x, y) coordinates of the head.
+                - A boolean indicating True if the move was safe, False if collision occurred.
+        """
         self.direction = self.next_direction
         dx, dy = self.direction
         head_x, head_y = self.body[0]

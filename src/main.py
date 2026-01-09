@@ -33,6 +33,16 @@ def save_high_score(score):
         print("Error saving high score.")
 
 def main():
+    """
+    The main game loop.
+
+    Handles:
+    1. Initialization of Model and View.
+    2. The Game Loop (Input -> Update -> Render).
+    3. Session management (High scores, Round counting).
+    4. Special states (Freeze/Undo mechanics).
+    """
+    
     # Initialize Model
     config_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'config', 'config.json')
     
@@ -52,14 +62,16 @@ def main():
     high_score = load_high_score()
     round_count = 1
     snake_speed = 5
-    unpause_time = 0
-    
-    # Custom event for reliable game ticks
-    MOVE_EVENT = pygame.USEREVENT + 1
+    unpause_time = 0 # Time marker for freeze state when undoing
+
+    # Separate render (FPS) from gameplay (Tick rate - snake speed) 
+    MOVE_EVENT = pygame.USEREVENT + 1 
     pygame.time.set_timer(MOVE_EVENT, 1000 // snake_speed) # Set a timer for the snake movement
 
     while running:
         current_time = pygame.time.get_ticks()
+        
+        # Check if we are in frozen state (after undoing)
         is_frozen = current_time < unpause_time
         
         # --- Controller: Handle Input ---
@@ -94,7 +106,7 @@ def main():
                         # Continue to next round
                         round_count += 1
                         board = Board(config_path)
-                        view.board = board # Update the view to look at the new board
+                        view.board = board # Update the view to have a new board
                         game_over = False
                         unpause_time = 0
                         snake_speed = 5
@@ -108,12 +120,13 @@ def main():
                         # Undo
                         if board.undo():
                             game_over = False
+                            # Freeze the game for 3 seconds to let the player react
                             unpause_time = current_time + UNDO_FREEZE_DURATION
                             snake_speed = 5
                             pygame.time.set_timer(MOVE_EVENT, 1000 // snake_speed)
 
             if event.type == MOVE_EVENT and not game_over and not is_frozen:
-                # we save the state before updating
+                # we save the state before updating (for undo functionality)
                 board.save_state()
                 
                 # --- Controller: Update Model ---
@@ -144,6 +157,7 @@ def main():
             high_score = board.score
             save_high_score(high_score)
         
+        # Calculate countdown 
         freeze_remaining = None
         if is_frozen and not game_over:
             freeze_remaining = (unpause_time - current_time) // 1000 + 1
