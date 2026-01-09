@@ -9,7 +9,7 @@ from models import Board
 from view import GameView
 
 FPS = 60 # Pygame refresh rate
-UNDO_FREEZE_DURATION = 3000 # 3 seconds to react
+UNDO_FREEZE_DURATION = 3000 # 3 seconds to react 
 
 HIGHSCORE_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'config', 'highscore.json')
 

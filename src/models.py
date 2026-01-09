@@ -4,7 +4,7 @@ import copy
 
 class Board:
     """
-    game state and logic.
+    Game state and logic.
 
     This class manages the game grid, loading configuration from JSON,
     tracking the positions of the snake, food, obstacles, and

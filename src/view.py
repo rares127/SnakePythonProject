@@ -45,7 +45,7 @@ class GameView:
     def draw_all(self, game_over=False, high_score=0, round_num=1, freeze_remaining=None):
         """Draws the entire game state."""
         self.screen.fill(COLOR_BACKGROUND)
-        # HEader
+        # Header
         header_rect = pygame.Rect(0, 0, self.screen_width, self.header_height)
         pygame.draw.rect(self.screen, COLOR_HEADER, header_rect)
         pygame.draw.line(self.screen, (100, 100, 100), (0, self.header_height), (self.screen_width, self.header_height), 2)
